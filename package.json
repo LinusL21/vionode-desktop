@@ -1,0 +1,41 @@
+{
+  "name": "vionode-desktop",
+  "productName": "Vionode",
+  "version": "1.0.0",
+  "description": "Vionode desktop app",
+  "author": "Vionode",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.vionode.desktop",
+    "productName": "Vionode",
+    "files": ["main.js", "preload.js", "config.js", "offline.html"],
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["universal"] },
+        { "target": "zip", "arch": ["universal"] }
+      ],
+      "category": "public.app-category.productivity",
+      "artifactName": "Vionode-mac.${ext}"
+    },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }]
+    },
+    "nsis": {
+      "artifactName": "Vionode-Setup.${ext}"
+    },
+    "publish": [
+      { "provider": "github", "owner": "LinusL21", "repo": "vionode-desktop" }
+    ]
+  }
+}
