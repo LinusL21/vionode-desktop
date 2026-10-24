@@ -1,7 +1,7 @@
 {
   "name": "vionode-desktop",
   "productName": "Vionode",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Vionode desktop app",
   "author": "Vionode",
   "main": "main.js",
