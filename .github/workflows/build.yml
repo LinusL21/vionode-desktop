@@ -7,7 +7,28 @@ permissions:
   contents: write
 
 jobs:
+  # One draft release per version, created up front so the Mac and Windows
+  # builds upload into the same release instead of racing to create two.
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Prepare draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v$(node -p "require('./package.json').version")"
+          if gh release view "$TAG" --json isDraft -q .isDraft 2>/dev/null | grep -q false; then
+            echo "$TAG is already published. Raise the version in package.json first." && exit 1
+          fi
+          # Remove leftover drafts for this version (earlier or failed builds).
+          gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+            -q ".[] | select(.draft and .tag_name == \"$TAG\") | .id" |
+            while read -r id; do gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/$id"; done
+          gh release create "$TAG" --draft --title "$TAG" --target "$GITHUB_SHA" --notes "Vionode desktop app $TAG"
+
   build:
+    needs: draft
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
