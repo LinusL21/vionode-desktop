@@ -23,7 +23,8 @@ function isInsideApp(url) {
   try {
     const u = new URL(url);
     if (u.origin === appOrigin) return true;
-    return ALLOWED_HOSTS.some((h) => u.hostname === h || u.hostname.endsWith('.' + h));
+    if (u.protocol !== 'https:') return false;
+    return ALLOWED_HOSTS.includes(u.hostname);
   } catch {
     return false;
   }
@@ -55,6 +56,19 @@ async function checkForNewVersion() {
   } catch {
     // Offline or site unreachable: try again next time.
   }
+}
+
+// Electron grants camera, microphone, location and similar requests silently by default.
+// Vionode needs none of them, so only harmless ones are allowed, and only for Vionode itself.
+const ALLOWED_PERMISSIONS = new Set(['clipboard-sanitized-write', 'fullscreen']);
+function lockDownPermissions() {
+  const ok = (permission, url) => ALLOWED_PERMISSIONS.has(permission) && (() => {
+    try { return new URL(url).origin === appOrigin; } catch { return false; }
+  })();
+  session.defaultSession.setPermissionRequestHandler((wc, permission, callback, details) => {
+    callback(ok(permission, details?.requestingUrl || wc.getURL()));
+  });
+  session.defaultSession.setPermissionCheckHandler((_wc, permission, requestingOrigin) => ok(permission, requestingOrigin));
 }
 
 async function createWindow() {
@@ -133,6 +147,7 @@ const menu = [
 
 app.whenReady().then(() => {
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
+  lockDownPermissions();
   createWindow();
   setInterval(checkForNewVersion, CHECK_EVERY_MINUTES * 60 * 1000);
 
