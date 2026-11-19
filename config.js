@@ -2,13 +2,14 @@ module.exports = {
   // The page of your published Vionode app that users should land on.
   APP_URL: 'https://vionode.com',
 
-  // Sites that may open INSIDE the app window (sign-in and payment).
+  // Exact sites that may open INSIDE the app window (sign-in and payment).
+  // Only these addresses match, not their subdomains: a wildcard like "lovable.app"
+  // would let anyone's Lovable site open in the window, which has no address bar.
   // Every other link opens in the user's normal browser.
   ALLOWED_HOSTS: [
-    'supabase.co',
-    'lovable.app',
+    'xbszisymadgmfpueamsh.supabase.co',
+    'oauth.lovable.app',
     'accounts.google.com',
-    'login.microsoftonline.com',
     'checkout.stripe.com',
     'billing.stripe.com',
   ],
